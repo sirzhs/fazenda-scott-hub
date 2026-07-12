@@ -88,10 +88,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Fazenda Scott — Gerenciador da Fazenda" },
       {
         property: "og:description",
-        content: "Gestão de produtos, estoque, vendas, encomendas e gastos da Fazenda Scott.",
+        content: "Gerencie produtos, estoque, vendas, encomendas e gastos da Fazenda Scott. Da terra para você.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Fazenda Scott — Gerenciador da Fazenda" },
+      { name: "twitter:description", content: "Gerencie produtos, estoque, vendas, encomendas e gastos da Fazenda Scott. Da terra para você." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/0041588f-3257-4de0-bb66-17b191a1bcda" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/0041588f-3257-4de0-bb66-17b191a1bcda" },
     ],
     links: [
       {
@@ -104,7 +108,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Karla:wght@400;500;600;700&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
   shellComponent: RootShell,
