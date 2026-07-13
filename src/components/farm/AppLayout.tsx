@@ -9,6 +9,7 @@ import {
   Receipt,
   LogOut,
   Menu,
+  Beef,
 } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +19,7 @@ import logoAsset from "@/assets/fazenda-scott-logo.png.asset.json";
 const NAV = [
   { to: "/", label: "Painel", icon: LayoutDashboard },
   { to: "/produtos", label: "Produtos", icon: Package },
+  { to: "/animais", label: "Animais", icon: Beef },
   { to: "/movimentacoes", label: "Entradas e Saídas", icon: ArrowLeftRight },
   { to: "/vendas", label: "Vendas", icon: ShoppingCart },
   { to: "/encomendas", label: "Encomendas", icon: ClipboardList },
