@@ -117,9 +117,10 @@ function AnimalsPage() {
       if (!qty || qty <= 0) throw new Error("Informe uma quantidade válida.");
       const field = adjust.type === "compra" ? "purchased" : "slaughtered";
       const current = Number(adjust.animal[field]);
+      const patch = { [field]: current + qty } as { purchased?: number; slaughtered?: number };
       const { error } = await supabase
         .from("animals")
-        .update({ [field]: current + qty })
+        .update(patch)
         .eq("id", adjust.animal.id);
       if (error) throw error;
     },
