@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      animals: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          purchased: number
+          slaughtered: number
+          unit_value: number
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          purchased?: number
+          slaughtered?: number
+          unit_value?: number
+          user_id?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          purchased?: number
+          slaughtered?: number
+          unit_value?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       expenses: {
         Row: {
           amount: number
