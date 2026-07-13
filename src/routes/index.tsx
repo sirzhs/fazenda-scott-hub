@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Wallet, TrendingUp, TrendingDown, Package, ClipboardList } from "lucide-react";
+import { Wallet, TrendingUp, TrendingDown, Package, ClipboardList, Warehouse, Beef } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/farm/AppLayout";
@@ -64,10 +64,35 @@ function Dashboard() {
     },
   });
 
+  const { data: animals = [] } = useQuery({
+    queryKey: ["animals", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("animals").select("*").order("category");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const totalSales = sales.reduce((sum, s) => sum + Number(s.total), 0);
   const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
   const balance = totalSales - totalExpenses;
   const lowStock = products.filter((p) => Number(p.stock) <= 0);
+  const productsStockValue = products.reduce(
+    (sum, p) => sum + Number(p.stock) * Number(p.price),
+    0,
+  );
+  const animalsAlive = animals.reduce(
+    (sum, a) => sum + Math.max(Number(a.purchased) - Number(a.slaughtered), 0),
+    0,
+  );
+  const animalsStockValue = animals.reduce(
+    (sum, a) =>
+      sum +
+      Math.max(Number(a.purchased) - Number(a.slaughtered), 0) * Number(a.unit_value),
+    0,
+  );
+  const totalStockValue = productsStockValue + animalsStockValue;
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -97,6 +122,26 @@ function Dashboard() {
           value={String(pendingOrders.length)}
         />
       </div>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <StatCard
+          icon={<Warehouse className="h-5 w-5" />}
+          label="Valor do estoque"
+          value={formatBRL(totalStockValue)}
+          highlight="positive"
+        />
+        <StatCard
+          icon={<Package className="h-5 w-5" />}
+          label="Estoque de produtos"
+          value={formatBRL(productsStockValue)}
+        />
+        <StatCard
+          icon={<Beef className="h-5 w-5" />}
+          label={`Rebanho (${formatQty(animalsAlive)} cab.)`}
+          value={formatBRL(animalsStockValue)}
+        />
+      </div>
+
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <section className="rounded-xl border border-border bg-card p-5">

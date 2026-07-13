@@ -16,6 +16,7 @@ import { Route as MovimentacoesRouteImport } from './routes/movimentacoes'
 import { Route as GastosRouteImport } from './routes/gastos'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AnimaisRouteImport } from './routes/animais'
 import { Route as IndexRouteImport } from './routes/index'
 
 const VendasRoute = VendasRouteImport.update({
@@ -53,6 +54,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnimaisRoute = AnimaisRouteImport.update({
+  id: '/animais',
+  path: '/animais',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -61,6 +67,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/animais': typeof AnimaisRoute
   '/auth': typeof AuthRoute
   '/encomendas': typeof EncomendasRoute
   '/gastos': typeof GastosRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/animais': typeof AnimaisRoute
   '/auth': typeof AuthRoute
   '/encomendas': typeof EncomendasRoute
   '/gastos': typeof GastosRoute
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/animais': typeof AnimaisRoute
   '/auth': typeof AuthRoute
   '/encomendas': typeof EncomendasRoute
   '/gastos': typeof GastosRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/animais'
     | '/auth'
     | '/encomendas'
     | '/gastos'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/animais'
     | '/auth'
     | '/encomendas'
     | '/gastos'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/animais'
     | '/auth'
     | '/encomendas'
     | '/gastos'
@@ -125,6 +137,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnimaisRoute: typeof AnimaisRoute
   AuthRoute: typeof AuthRoute
   EncomendasRoute: typeof EncomendasRoute
   GastosRoute: typeof GastosRoute
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/animais': {
+      id: '/animais'
+      path: '/animais'
+      fullPath: '/animais'
+      preLoaderRoute: typeof AnimaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -197,6 +217,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnimaisRoute: AnimaisRoute,
   AuthRoute: AuthRoute,
   EncomendasRoute: EncomendasRoute,
   GastosRoute: GastosRoute,
