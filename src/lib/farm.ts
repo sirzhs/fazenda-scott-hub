@@ -43,3 +43,15 @@ export const EXPENSE_CATEGORIES = [
 export function expenseCategoryLabel(value: string) {
   return EXPENSE_CATEGORIES.find((c) => c.value === value)?.label ?? value;
 }
+
+export const ANIMAL_CATEGORIES = [
+  { value: "ovinos", label: "Ovinos" },
+  { value: "aviarios", label: "Aviários" },
+  { value: "suinos", label: "Suínos" },
+  { value: "mulas", label: "Mulas" },
+  { value: "gados", label: "Gados" },
+];
+
+export function animalCategoryLabel(value: string) {
+  return ANIMAL_CATEGORIES.find((c) => c.value === value)?.label ?? value;
+}
