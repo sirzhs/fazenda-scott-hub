@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Wallet, TrendingUp, TrendingDown, Package, ClipboardList } from "lucide-react";
+import { Wallet, TrendingUp, TrendingDown, Package, ClipboardList, Warehouse, Beef } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/farm/AppLayout";
-import { formatBRL, formatQty, formatDate } from "@/lib/farm";
+import { formatBRL, formatQty, formatDate, animalCategoryLabel } from "@/lib/farm";
 
 export const Route = createFileRoute("/")({
   component: () => (
