@@ -77,7 +77,7 @@ function AuthPage() {
         <div className="mb-6 flex flex-col items-center">
           <img src={logoAsset.url} alt="Fazenda Scott" className="h-44 w-44 object-contain" />
         </div>
-        <div className="rounded-xl border border-border bg-card p-6 shadow-xl">
+        <div className="card-farm p-6 shadow-xl">
           <h1 className="text-center text-xl font-bold text-card-foreground">
             {mode === "login" ? "Entrar" : "Criar conta"}
           </h1>

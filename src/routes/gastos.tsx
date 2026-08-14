@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/farm/AppLayout";
 import { Modal } from "@/components/farm/Modal";
+import { ExportButtons } from "@/components/farm/ExportButtons";
 import { formatBRL, formatDate, EXPENSE_CATEGORIES, expenseCategoryLabel } from "@/lib/farm";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -32,6 +33,7 @@ const EMPTY = {
 function ExpensesPage() {
   const { userId } = useAuth();
   const qc = useQueryClient();
+  const reportRef = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Expense | null>(null);
   const [form, setForm] = useState(EMPTY);
@@ -105,7 +107,7 @@ function ExpensesPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="page-enter mx-auto max-w-5xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold lg:text-3xl">Gastos</h1>
@@ -113,20 +115,42 @@ function ExpensesPage() {
             Total gasto: <span className="font-bold text-destructive">{formatBRL(total)}</span>
           </p>
         </div>
-        <button
-          onClick={() => {
-            setEditing(null);
-            setForm(EMPTY);
-            setModalOpen(true);
-          }}
-          className="btn-gold"
-        >
-          <Plus className="h-4 w-4" /> Novo gasto
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+        <ExportButtons
+          targetRef={reportRef}
+          report={() => ({
+            title: "Gastos",
+            columns: [
+              { header: "Data" },
+              { header: "Descrição" },
+              { header: "Categoria" },
+              { header: "Valor", align: "right" },
+            ],
+            rows: expenses.map((ex) => [
+              formatDate(ex.date),
+              ex.description,
+              expenseCategoryLabel(ex.category),
+              formatBRL(Number(ex.amount)),
+            ]),
+            summary: [`Total gasto: ${formatBRL(total)}`],
+          })}
+        />
+
+          <button
+            onClick={() => {
+              setEditing(null);
+              setForm(EMPTY);
+              setModalOpen(true);
+            }}
+            className="btn-gold hover-lift"
+          >
+            <Plus className="h-4 w-4" /> Novo gasto
+          </button>
+        </div>
       </div>
 
       {expenses.length > 0 ? (
-        <div className="mt-6 overflow-x-auto rounded-xl border border-border bg-card">
+        <div ref={reportRef} className="mt-6 overflow-x-auto card-farm">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">

@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Plus, Trash2, ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/farm/AppLayout";
 import { Modal } from "@/components/farm/Modal";
+import { ExportButtons } from "@/components/farm/ExportButtons";
 import { formatQty, formatDate } from "@/lib/farm";
 
 export const Route = createFileRoute("/movimentacoes")({
@@ -29,6 +30,7 @@ const EMPTY = {
 function MovementsPage() {
   const { userId } = useAuth();
   const qc = useQueryClient();
+  const reportRef = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState(EMPTY);
 
@@ -115,7 +117,7 @@ function MovementsPage() {
   });
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="page-enter mx-auto max-w-5xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold lg:text-3xl">Entradas e Saídas</h1>
@@ -123,16 +125,40 @@ function MovementsPage() {
             Movimentações de estoque dos produtos
           </p>
         </div>
-        <button
-          onClick={() => {
-            setForm(EMPTY);
-            setModalOpen(true);
-          }}
-          className="btn-gold"
-          disabled={products.length === 0}
-        >
-          <Plus className="h-4 w-4" /> Nova movimentação
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+        <ExportButtons
+          targetRef={reportRef}
+          report={() => ({
+            title: "Entradas e Saidas",
+            columns: [
+              { header: "Data" },
+              { header: "Tipo" },
+              { header: "Produto" },
+              { header: "Quantidade", align: "right" },
+              { header: "Observações" },
+            ],
+            rows: movements.map((m) => [
+              formatDate(m.date),
+              m.type === "entrada" ? "Entrada" : "Saída",
+              m.products?.name ?? "",
+              `${formatQty(Number(m.quantity))} ${m.products?.unit ?? ""}`,
+              m.notes ?? "—",
+            ]),
+            summary: [`${movements.length} movimentação(ões) registradas`],
+          })}
+        />
+
+          <button
+            onClick={() => {
+              setForm(EMPTY);
+              setModalOpen(true);
+            }}
+            className="btn-gold hover-lift"
+            disabled={products.length === 0}
+          >
+            <Plus className="h-4 w-4" /> Nova movimentação
+          </button>
+        </div>
       </div>
 
       {products.length === 0 && (
@@ -142,7 +168,7 @@ function MovementsPage() {
       )}
 
       {movements.length > 0 ? (
-        <div className="mt-6 overflow-x-auto rounded-xl border border-border bg-card">
+        <div ref={reportRef} className="mt-6 overflow-x-auto card-farm">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">

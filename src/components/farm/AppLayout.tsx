@@ -10,10 +10,12 @@ import {
   LogOut,
   Menu,
   Beef,
+  Table2,
 } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { FarmBackground } from "@/components/farm/FarmBackground";
 import logoAsset from "@/assets/fazenda-scott-logo.png.asset.json";
 
 const NAV = [
@@ -24,7 +26,9 @@ const NAV = [
   { to: "/vendas", label: "Vendas", icon: ShoppingCart },
   { to: "/encomendas", label: "Encomendas", icon: ClipboardList },
   { to: "/gastos", label: "Gastos", icon: Receipt },
+  { to: "/precos", label: "Tabela de Preços", icon: Table2 },
 ];
+
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const { session, loading } = useAuth();
@@ -55,7 +59,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
             key={item.to}
             to={item.to}
             onClick={() => setMobileOpen(false)}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${
+            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-200 hover:translate-x-1 ${
               active
                 ? "bg-sidebar-accent text-sidebar-accent-foreground"
                 : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
@@ -70,9 +74,11 @@ export function AppLayout({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen">
+      <FarmBackground />
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col bg-sidebar lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col bg-sidebar/95 backdrop-blur-md lg:flex">
+
         <div className="flex flex-col items-center px-4 py-6">
           <img src={logoAsset.url} alt="Fazenda Scott" className="h-28 w-28 object-contain" />
           <p className="mt-2 text-center text-xs font-medium tracking-wide text-sidebar-accent-foreground">
@@ -129,7 +135,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      <main className="min-w-0 flex-1 px-4 pb-12 pt-20 lg:ml-60 lg:px-8 lg:pt-8">
+      <main key={pathname} className="page-enter min-w-0 flex-1 px-4 pb-12 pt-20 lg:ml-60 lg:px-8 lg:pt-8">
         {children}
       </main>
     </div>
