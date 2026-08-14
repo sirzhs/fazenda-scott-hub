@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Plus, Pencil, Trash2, Sprout } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/farm/AppLayout";
 import { Modal } from "@/components/farm/Modal";
+import { ExportButtons } from "@/components/farm/ExportButtons";
 import { formatBRL, formatQty, DEFAULT_PRODUCTS } from "@/lib/farm";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -26,6 +27,7 @@ const EMPTY = { name: "", category: "", unit: "un", price: "", stock: "" };
 function ProductsPage() {
   const { userId } = useAuth();
   const qc = useQueryClient();
+  const reportRef = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState(EMPTY);
@@ -112,7 +114,7 @@ function ProductsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="page-enter mx-auto max-w-5xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold lg:text-3xl">Produtos</h1>
@@ -120,13 +122,41 @@ function ProductsPage() {
             Catálogo e estoque da Fazenda Scott
           </p>
         </div>
-        <button onClick={openNew} className="btn-gold">
-          <Plus className="h-4 w-4" /> Novo produto
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+        <ExportButtons
+          targetRef={reportRef}
+          report={() => ({
+            title: "Produtos",
+            columns: [
+              { header: "Produto" },
+              { header: "Categoria" },
+              { header: "Preço", align: "right" },
+              { header: "Estoque", align: "right" },
+              { header: "Valor em estoque", align: "right" },
+            ],
+            rows: products.map((p) => [
+              p.name,
+              p.category ?? "—",
+              `${formatBRL(Number(p.price))}/${p.unit}`,
+              `${formatQty(Number(p.stock))} ${p.unit}`,
+              formatBRL(Number(p.price) * Number(p.stock)),
+            ]),
+            summary: [
+              `Valor total em estoque: ${formatBRL(
+                products.reduce((sum, p) => sum + Number(p.price) * Number(p.stock), 0),
+              )}`,
+            ],
+          })}
+        />
+
+          <button onClick={openNew} className="btn-gold hover-lift">
+            <Plus className="h-4 w-4" /> Novo produto
+          </button>
+        </div>
       </div>
 
       {!isLoading && products.length === 0 && (
-        <div className="mt-10 rounded-xl border border-dashed border-border bg-card p-8 text-center">
+        <div className="mt-10 card-farm border-dashed p-8 text-center">
           <Sprout className="mx-auto h-10 w-10 text-gold" />
           <p className="mt-3 font-semibold">Comece com os produtos da fazenda</p>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -143,7 +173,7 @@ function ProductsPage() {
       )}
 
       {products.length > 0 && (
-        <div className="mt-6 overflow-x-auto rounded-xl border border-border bg-card">
+        <div ref={reportRef} className="mt-6 overflow-x-auto card-farm">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">

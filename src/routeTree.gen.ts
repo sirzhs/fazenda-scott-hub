@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VendasRouteImport } from './routes/vendas'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ProdutosRouteImport } from './routes/produtos'
+import { Route as PrecosRouteImport } from './routes/precos'
 import { Route as MovimentacoesRouteImport } from './routes/movimentacoes'
 import { Route as GastosRouteImport } from './routes/gastos'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
@@ -32,6 +33,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ProdutosRoute = ProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrecosRoute = PrecosRouteImport.update({
+  id: '/precos',
+  path: '/precos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MovimentacoesRoute = MovimentacoesRouteImport.update({
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/encomendas': typeof EncomendasRoute
   '/gastos': typeof GastosRoute
   '/movimentacoes': typeof MovimentacoesRoute
+  '/precos': typeof PrecosRoute
   '/produtos': typeof ProdutosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vendas': typeof VendasRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/encomendas': typeof EncomendasRoute
   '/gastos': typeof GastosRoute
   '/movimentacoes': typeof MovimentacoesRoute
+  '/precos': typeof PrecosRoute
   '/produtos': typeof ProdutosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vendas': typeof VendasRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/encomendas': typeof EncomendasRoute
   '/gastos': typeof GastosRoute
   '/movimentacoes': typeof MovimentacoesRoute
+  '/precos': typeof PrecosRoute
   '/produtos': typeof ProdutosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vendas': typeof VendasRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/encomendas'
     | '/gastos'
     | '/movimentacoes'
+    | '/precos'
     | '/produtos'
     | '/sitemap.xml'
     | '/vendas'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/encomendas'
     | '/gastos'
     | '/movimentacoes'
+    | '/precos'
     | '/produtos'
     | '/sitemap.xml'
     | '/vendas'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/encomendas'
     | '/gastos'
     | '/movimentacoes'
+    | '/precos'
     | '/produtos'
     | '/sitemap.xml'
     | '/vendas'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   EncomendasRoute: typeof EncomendasRoute
   GastosRoute: typeof GastosRoute
   MovimentacoesRoute: typeof MovimentacoesRoute
+  PrecosRoute: typeof PrecosRoute
   ProdutosRoute: typeof ProdutosRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   VendasRoute: typeof VendasRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/produtos'
       fullPath: '/produtos'
       preLoaderRoute: typeof ProdutosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/precos': {
+      id: '/precos'
+      path: '/precos'
+      fullPath: '/precos'
+      preLoaderRoute: typeof PrecosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/movimentacoes': {
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   EncomendasRoute: EncomendasRoute,
   GastosRoute: GastosRoute,
   MovimentacoesRoute: MovimentacoesRoute,
+  PrecosRoute: PrecosRoute,
   ProdutosRoute: ProdutosRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   VendasRoute: VendasRoute,
@@ -229,3 +250,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Plus, Pencil, Trash2, Beef, ShoppingBag, Scissors } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/farm/AppLayout";
 import { Modal } from "@/components/farm/Modal";
+import { ExportButtons } from "@/components/farm/ExportButtons";
 import {
   ANIMAL_CATEGORIES,
   animalCategoryLabel,
@@ -46,6 +47,7 @@ const EMPTY = {
 function AnimalsPage() {
   const { userId } = useAuth();
   const qc = useQueryClient();
+  const reportRef = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [adjust, setAdjust] = useState<{
@@ -150,7 +152,7 @@ function AnimalsPage() {
   })).filter((g) => g.items.length > 0);
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="page-enter mx-auto max-w-5xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold lg:text-3xl">Animais</h1>
@@ -158,15 +160,49 @@ function AnimalsPage() {
             Controle de rebanho por categoria — compras e abates
           </p>
         </div>
-        <button
-          onClick={() => {
-            setForm(EMPTY);
-            setModalOpen(true);
-          }}
-          className="btn-gold"
-        >
-          <Plus className="h-4 w-4" /> Novo registro
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <ExportButtons
+            targetRef={reportRef}
+            report={() => ({
+              title: "Animais",
+              columns: [
+                { header: "Categoria" },
+                { header: "Nome / Lote" },
+                { header: "Comprados", align: "right" },
+                { header: "Abatidos", align: "right" },
+                { header: "Atual", align: "right" },
+                { header: "Valor / cabeça", align: "right" },
+                { header: "Total", align: "right" },
+              ],
+              rows: animals.map((a) => {
+                const alive = Math.max(Number(a.purchased) - Number(a.slaughtered), 0);
+                return [
+                  animalCategoryLabel(a.category),
+                  a.name,
+                  formatQty(Number(a.purchased)),
+                  formatQty(Number(a.slaughtered)),
+                  formatQty(alive),
+                  formatBRL(Number(a.unit_value)),
+                  formatBRL(alive * Number(a.unit_value)),
+                ];
+              }),
+              summary: [
+                `Rebanho atual: ${formatQty(totals.alive)} cabeças`,
+                `Valor estimado: ${formatBRL(totals.value)}`,
+              ],
+            })}
+          />
+
+          <button
+            onClick={() => {
+              setForm(EMPTY);
+              setModalOpen(true);
+            }}
+            className="btn-gold hover-lift"
+          >
+            <Plus className="h-4 w-4" /> Novo registro
+          </button>
+        </div>
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -181,9 +217,9 @@ function AnimalsPage() {
           Nenhum animal cadastrado ainda. Clique em <strong>Novo registro</strong> para começar.
         </p>
       ) : (
-        <div className="mt-8 space-y-6">
+        <div ref={reportRef} className="mt-8 space-y-6">
           {grouped.map((g) => (
-            <section key={g.value} className="rounded-xl border border-border bg-card">
+            <section key={g.value} className="card-farm">
               <header className="flex items-center gap-2 border-b border-border px-4 py-3">
                 <Beef className="h-4 w-4 text-gold" />
                 <h2 className="text-base font-bold">{g.label}</h2>
@@ -419,7 +455,7 @@ function SummaryCard({
   highlight?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="card-farm p-4">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         {label}
       </p>

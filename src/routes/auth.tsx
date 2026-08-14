@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/use-auth";
+import { FarmBackground } from "@/components/farm/FarmBackground";
 import logoAsset from "@/assets/fazenda-scott-logo.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
@@ -72,12 +73,13 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-sidebar px-4 py-10">
-      <div className="w-full max-w-sm">
+    <div className="flex min-h-screen items-center justify-center px-4 py-10">
+      <FarmBackground />
+      <div className="page-enter w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center">
           <img src={logoAsset.url} alt="Fazenda Scott" className="h-44 w-44 object-contain" />
         </div>
-        <div className="rounded-xl border border-border bg-card p-6 shadow-xl">
+        <div className="card-farm p-6 shadow-xl">
           <h1 className="text-center text-xl font-bold text-card-foreground">
             {mode === "login" ? "Entrar" : "Criar conta"}
           </h1>

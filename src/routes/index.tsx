@@ -1,12 +1,31 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useRef } from "react";
 import { Wallet, TrendingUp, TrendingDown, Package, ClipboardList, Warehouse, Beef } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/farm/AppLayout";
+import { ExportButtons } from "@/components/farm/ExportButtons";
 import { formatBRL, formatQty, formatDate } from "@/lib/farm";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Painel da Fazenda Scott — Gestão rural" },
+      {
+        name: "description",
+        content:
+          "Painel da Fazenda Scott: saldo, vendas, gastos, estoque de produtos e rebanho em um só lugar.",
+      },
+      { property: "og:title", content: "Painel da Fazenda Scott" },
+      {
+        property: "og:description",
+        content: "Acompanhe saldo, vendas, gastos, estoque e rebanho da Fazenda Scott.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: () => (
     <AppLayout>
       <Dashboard />
@@ -16,6 +35,7 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const { userId } = useAuth();
+  const reportRef = useRef<HTMLDivElement>(null);
 
   const { data: sales = [] } = useQuery({
     queryKey: ["sales", userId],
@@ -95,11 +115,32 @@ function Dashboard() {
   const totalStockValue = productsStockValue + animalsStockValue;
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <h1 className="text-2xl font-bold lg:text-3xl">Painel da Fazenda</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Visão geral do seu negócio</p>
+    <div className="page-enter mx-auto max-w-5xl">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold lg:text-3xl">Painel da Fazenda</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Visão geral do seu negócio</p>
+        </div>
+        <ExportButtons
+          targetRef={reportRef}
+          report={() => ({
+            title: "Visao Geral",
+            columns: [{ header: "Indicador" }, { header: "Valor", align: "right" }],
+            rows: [
+              ["Saldo da conta", formatBRL(balance)],
+              ["Total de vendas", formatBRL(totalSales)],
+              ["Total de gastos", formatBRL(totalExpenses)],
+              ["Encomendas abertas", String(pendingOrders.length)],
+              ["Valor do estoque (total)", formatBRL(totalStockValue)],
+              ["Estoque de produtos", formatBRL(productsStockValue)],
+              [`Rebanho (${formatQty(animalsAlive)} cab.)`, formatBRL(animalsStockValue)],
+              ["Produtos sem estoque", String(lowStock.length)],
+            ],
+          })}
+        />
+      </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div ref={reportRef} className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<Wallet className="h-5 w-5" />}
           label="Saldo da conta"
@@ -144,7 +185,7 @@ function Dashboard() {
 
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-border bg-card p-5">
+        <section className="card-farm p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-bold">Estoque</h2>
             <Link to="/produtos" className="text-sm font-semibold text-primary hover:underline">
@@ -182,7 +223,7 @@ function Dashboard() {
           )}
         </section>
 
-        <section className="rounded-xl border border-border bg-card p-5">
+        <section className="card-farm p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-bold">Últimas vendas</h2>
             <Link to="/vendas" className="text-sm font-semibold text-primary hover:underline">
@@ -210,7 +251,7 @@ function Dashboard() {
       </div>
 
       {pendingOrders.length > 0 && (
-        <section className="mt-6 rounded-xl border border-border bg-card p-5">
+        <section className="mt-6 card-farm p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-bold">Próximas encomendas</h2>
             <Link to="/encomendas" className="text-sm font-semibold text-primary hover:underline">
@@ -250,7 +291,7 @@ function StatCard({
   highlight?: "positive" | "negative";
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="card-farm hover-lift p-4">
       <div className="flex items-center gap-2 text-muted-foreground">
         <span className="rounded-md bg-accent p-1.5 text-accent-foreground">{icon}</span>
         <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
