@@ -11,6 +11,7 @@ import {
   Menu,
   Beef,
   Table2,
+  Wallet,
 } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +27,7 @@ const NAV = [
   { to: "/vendas", label: "Vendas", icon: ShoppingCart },
   { to: "/encomendas", label: "Encomendas", icon: ClipboardList },
   { to: "/gastos", label: "Gastos", icon: Receipt },
+  { to: "/financeiro", label: "Financeiro", icon: Wallet },
   { to: "/precos", label: "Tabela de Preços", icon: Table2 },
 ];
 
