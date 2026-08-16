@@ -114,7 +114,7 @@ export async function exportReportXlsx(data: ReportData) {
     { value: line, type: String, fontWeight: "bold" as const, span: data.columns.length },
   ]);
 
-  await writeXlsxFile([[...[]], ...[]].length ? [] : ([
+  const sheet = [
     [
       {
         value: `Fazenda Scott — ${data.title}${data.subtitle ? ` (${data.subtitle})` : ""}`,
@@ -127,8 +127,11 @@ export async function exportReportXlsx(data: ReportData) {
     header,
     ...body,
     ...(summary.length ? [[], ...summary] : []),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ] as any), {
+  ];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await writeXlsxFile(sheet as any, {
+
     fileName: fileName(data.title, "xlsx"),
     sheet: data.title.slice(0, 28) || "Relatorio",
     columns: data.columns.map(() => ({ width: 24 })),
