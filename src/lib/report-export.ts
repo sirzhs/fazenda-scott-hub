@@ -92,7 +92,7 @@ export async function exportNodePng(node: HTMLElement, title: string) {
 
 /** Exports the report as a real .xlsx spreadsheet. */
 export async function exportReportXlsx(data: ReportData) {
-  const { default: writeXlsxFile } = await import("write-excel-file");
+  const { default: writeXlsxFile } = await import("write-excel-file/browser");
 
   const header = data.columns.map((c) => ({
     value: c.header,
