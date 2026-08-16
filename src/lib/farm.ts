@@ -115,9 +115,9 @@ export function daysFromToday(iso: string) {
 
 export function startOfWeekISO() {
   const d = new Date();
-  const diff = (d.getDay() + 6) % 7; // segunda-feira
+  const diff = (d.getDay() + 6) % 7; // semana comeca na segunda-feira
   d.setDate(d.getDate() - diff);
-  return monthKey(d) + "-" + String(d.getDate()).padStart(2, "0") === "" ? "" : isoOf(d);
+  return isoOf(d);
 }
 
 function isoOf(d: Date) {
