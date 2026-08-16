@@ -83,6 +83,48 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_entries: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          due_date: string
+          id: string
+          kind: string
+          notes: string | null
+          paid_at: string | null
+          party: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          due_date?: string
+          id?: string
+          kind?: string
+          notes?: string | null
+          paid_at?: string | null
+          party: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          due_date?: string
+          id?: string
+          kind?: string
+          notes?: string | null
+          paid_at?: string | null
+          party?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       movements: {
         Row: {
           created_at: string
