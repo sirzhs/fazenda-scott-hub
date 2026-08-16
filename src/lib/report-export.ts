@@ -89,3 +89,57 @@ export async function exportNodePng(node: HTMLElement, title: string) {
   link.href = canvas.toDataURL("image/png");
   link.click();
 }
+
+/** Exports the report as a real .xlsx spreadsheet. */
+export async function exportReportXlsx(data: ReportData) {
+  const { default: writeXlsxFile } = await import("write-excel-file/browser");
+
+  const header = data.columns.map((c) => ({
+    value: c.header,
+    fontWeight: "bold" as const,
+    backgroundColor: "#b0893c",
+    color: "#1e1e19",
+    align: c.align ?? ("left" as const),
+  }));
+
+  const body = data.rows.map((row) =>
+    row.map((cell, i) => ({
+      value: cell == null ? "" : String(cell),
+      type: String,
+      align: data.columns[i]?.align ?? ("left" as const),
+    })),
+  );
+
+  const summary = (data.summary ?? []).map((line) => [
+    { value: line, type: String, fontWeight: "bold" as const, span: data.columns.length },
+  ]);
+
+  const sheet = [
+    [
+      {
+        value: `Fazenda Scott — ${data.title}${data.subtitle ? ` (${data.subtitle})` : ""}`,
+        fontWeight: "bold" as const,
+        span: data.columns.length,
+      },
+    ],
+    [{ value: `Gerado em ${stamp()}`, span: data.columns.length }],
+    [],
+    header,
+    ...body,
+    ...(summary.length ? [[], ...summary] : []),
+  ];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const blob = (await writeXlsxFile(sheet as any, {
+    sheet: (data.title.slice(0, 28) || "Relatorio").replace(/[[\]:*?/\\]/g, " "),
+    columns: data.columns.map(() => ({ width: 24 })),
+  })) as unknown as Blob;
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName(data.title, "xlsx");
+  link.click();
+  URL.revokeObjectURL(url);
+
+}

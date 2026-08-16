@@ -1,7 +1,14 @@
 import { useState } from "react";
-import { FileDown, Image as ImageIcon } from "lucide-react";
+import { FileDown, Image as ImageIcon, Sheet } from "lucide-react";
 import { toast } from "sonner";
-import { exportNodePng, exportReportPdf, type ReportData } from "@/lib/report-export";
+import {
+  exportNodePng,
+  exportReportPdf,
+  exportReportXlsx,
+  type ReportData,
+} from "@/lib/report-export";
+
+type Kind = "pdf" | "png" | "xlsx";
 
 export function ExportButtons({
   report,
@@ -10,15 +17,18 @@ export function ExportButtons({
   report: () => ReportData;
   targetRef?: React.RefObject<HTMLElement | null>;
 }) {
-  const [busy, setBusy] = useState<"pdf" | "png" | null>(null);
+  const [busy, setBusy] = useState<Kind | null>(null);
 
-  const run = async (kind: "pdf" | "png") => {
+  const run = async (kind: Kind) => {
     setBusy(kind);
     try {
       const data = report();
       if (kind === "pdf") {
         if (!data.rows.length) throw new Error("Nada para exportar ainda.");
         await exportReportPdf(data);
+      } else if (kind === "xlsx") {
+        if (!data.rows.length) throw new Error("Nada para exportar ainda.");
+        await exportReportXlsx(data);
       } else {
         const node = targetRef?.current;
         if (!node) throw new Error("Nada para exportar ainda.");
@@ -42,6 +52,15 @@ export function ExportButtons({
       >
         <FileDown className="h-4 w-4" />
         {busy === "pdf" ? "Gerando..." : "PDF"}
+      </button>
+      <button
+        onClick={() => run("xlsx")}
+        disabled={busy !== null}
+        className="btn-outline hover-lift"
+        title="Exportar relatório em Excel"
+      >
+        <Sheet className="h-4 w-4" />
+        {busy === "xlsx" ? "Gerando..." : "Excel"}
       </button>
       <button
         onClick={() => run("png")}

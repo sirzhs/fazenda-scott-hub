@@ -55,3 +55,72 @@ export const ANIMAL_CATEGORIES = [
 export function animalCategoryLabel(value: string) {
   return ANIMAL_CATEGORIES.find((c) => c.value === value)?.label ?? value;
 }
+
+/* ------------------------------- Financeiro ------------------------------- */
+
+export const FINANCE_KINDS = [
+  { value: "pagar", label: "A pagar" },
+  { value: "receber", label: "A receber" },
+];
+
+export type FinanceStatus = "pago" | "pendente" | "atrasado";
+
+export const FINANCE_STATUS: Record<FinanceStatus, { label: string; dot: string; className: string }> = {
+  pago: { label: "Pago", dot: "bg-success", className: "bg-success/15 text-success" },
+  pendente: { label: "Pendente", dot: "bg-gold", className: "bg-gold/20 text-gold-foreground" },
+  atrasado: { label: "Atrasado", dot: "bg-destructive", className: "bg-destructive/10 text-destructive" },
+};
+
+export function financeStatus(entry: { paid_at: string | null; due_date: string }): FinanceStatus {
+  if (entry.paid_at) return "pago";
+  return entry.due_date < todayISO() ? "atrasado" : "pendente";
+}
+
+/* --------------------------------- Datas --------------------------------- */
+
+export function todayISO() {
+  const d = new Date();
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
+}
+
+/** "2026-08" for the given date (local time). */
+export function monthKey(date: Date | string) {
+  if (typeof date === "string") return date.slice(0, 7);
+  const off = date.getTimezoneOffset();
+  return new Date(date.getTime() - off * 60000).toISOString().slice(0, 7);
+}
+
+/** Last `count` month keys, oldest first (includes current month). */
+export function lastMonthKeys(count: number) {
+  const now = new Date();
+  return Array.from({ length: count }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (count - 1 - i), 1);
+    return monthKey(d);
+  });
+}
+
+export function monthLabel(key: string) {
+  const [y, m] = key.split("-").map(Number);
+  const label = new Date(y, m - 1, 1).toLocaleDateString("pt-BR", { month: "long" });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+/** Number of days between today and an ISO date (negative = past). */
+export function daysFromToday(iso: string) {
+  const a = new Date(`${todayISO()}T00:00:00`);
+  const b = new Date(`${iso}T00:00:00`);
+  return Math.round((b.getTime() - a.getTime()) / 86400000);
+}
+
+export function startOfWeekISO() {
+  const d = new Date();
+  const diff = (d.getDay() + 6) % 7; // semana comeca na segunda-feira
+  d.setDate(d.getDate() - diff);
+  return isoOf(d);
+}
+
+function isoOf(d: Date) {
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
+}
