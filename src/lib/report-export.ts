@@ -130,10 +130,16 @@ export async function exportReportXlsx(data: ReportData) {
   ];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await writeXlsxFile(sheet as any, {
-
-    fileName: fileName(data.title, "xlsx"),
-    sheet: data.title.slice(0, 28) || "Relatorio",
+  const blob = (await writeXlsxFile(sheet as any, {
+    sheet: (data.title.slice(0, 28) || "Relatorio").replace(/[[\]:*?/\\]/g, " "),
     columns: data.columns.map(() => ({ width: 24 })),
-  });
+  })) as unknown as Blob;
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName(data.title, "xlsx");
+  link.click();
+  URL.revokeObjectURL(url);
+
 }
