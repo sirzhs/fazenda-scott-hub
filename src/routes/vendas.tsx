@@ -9,6 +9,7 @@ import { AppLayout } from "@/components/farm/AppLayout";
 import { Modal } from "@/components/farm/Modal";
 import { ExportButtons } from "@/components/farm/ExportButtons";
 import { formatBRL, formatQty, formatDate } from "@/lib/farm";
+import { notifyDiscord } from "@/lib/discord-notify";
 
 export const Route = createFileRoute("/vendas")({
   head: () => ({ meta: [{ title: "Vendas — Fazenda Scott" }] }),
@@ -92,6 +93,16 @@ function SalesPage() {
       if (stockError) throw stockError;
     },
     onSuccess: () => {
+      const product = products.find((p) => p.id === form.product_id);
+      notifyDiscord({
+        module: "Vendas",
+        action: "criado",
+        summary: `${formatQty(Number(form.quantity))} ${product?.unit ?? ""} de ${product?.name ?? "produto"} vendidos${form.customer ? ` para ${form.customer}` : ""}.`,
+        fields: [
+          { name: "Total", value: formatBRL(Number(form.quantity) * Number(form.unit_price)) },
+          { name: "Data", value: formatDate(form.date) },
+        ],
+      });
       toast.success("Venda registrada!");
       setModalOpen(false);
       setForm(EMPTY);
@@ -111,8 +122,14 @@ function SalesPage() {
           .update({ stock: Number(product.stock) + Number(sale.quantity) })
           .eq("id", product.id);
       }
+      return sale;
     },
-    onSuccess: () => {
+    onSuccess: (sale) => {
+      notifyDiscord({
+        module: "Vendas",
+        action: "removido",
+        summary: `Venda removida: ${formatQty(Number(sale.quantity))} de ${sale.products?.name ?? "produto"} (${formatBRL(Number(sale.total))}).`,
+      });
       toast.success("Venda removida e estoque devolvido.");
       invalidate();
     },

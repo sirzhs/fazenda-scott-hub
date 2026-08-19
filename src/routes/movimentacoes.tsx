@@ -9,6 +9,7 @@ import { AppLayout } from "@/components/farm/AppLayout";
 import { Modal } from "@/components/farm/Modal";
 import { ExportButtons } from "@/components/farm/ExportButtons";
 import { formatQty, formatDate } from "@/lib/farm";
+import { notifyDiscord } from "@/lib/discord-notify";
 
 export const Route = createFileRoute("/movimentacoes")({
   head: () => ({ meta: [{ title: "Entradas e Saídas — Fazenda Scott" }] }),
@@ -88,6 +89,13 @@ function MovementsPage() {
       if (stockError) throw stockError;
     },
     onSuccess: () => {
+      const product = products.find((p) => p.id === form.product_id);
+      notifyDiscord({
+        module: "Entradas e Saídas",
+        action: "criado",
+        summary: `${form.type === "entrada" ? "Entrada" : "Saída"} de ${formatQty(Number(form.quantity))} ${product?.unit ?? ""} de ${product?.name ?? "produto"}.`,
+        fields: [{ name: "Data", value: formatDate(form.date) }],
+      });
       toast.success("Movimentação registrada!");
       setModalOpen(false);
       setForm(EMPTY);
@@ -108,13 +116,20 @@ function MovementsPage() {
           Number(product.stock) + (movement.type === "entrada" ? -qty : qty);
         await supabase.from("products").update({ stock: newStock }).eq("id", product.id);
       }
+      return movement;
     },
-    onSuccess: () => {
+    onSuccess: (movement) => {
+      notifyDiscord({
+        module: "Entradas e Saídas",
+        action: "removido",
+        summary: `Movimentação removida: ${movement.type === "entrada" ? "entrada" : "saída"} de ${formatQty(Number(movement.quantity))} de ${movement.products?.name ?? "produto"}.`,
+      });
       toast.success("Movimentação removida e estoque ajustado.");
       invalidate();
     },
     onError: (e) => toast.error(e.message),
   });
+
 
   return (
     <div className="page-enter mx-auto max-w-5xl">

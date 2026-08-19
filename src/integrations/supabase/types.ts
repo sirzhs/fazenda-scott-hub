@@ -50,6 +50,78 @@ export type Database = {
         }
         Relationships: []
       }
+      app_settings: {
+        Row: {
+          created_at: string
+          discord_webhook_url: string | null
+          notify_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          discord_webhook_url?: string | null
+          notify_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          discord_webhook_url?: string | null
+          notify_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      discord_imports: {
+        Row: {
+          actor: string | null
+          amount: number | null
+          created_at: string
+          id: string
+          item: string | null
+          kind: string
+          line_hash: string
+          logged_at: string | null
+          quantity: number | null
+          raw_line: string
+          target_id: string | null
+          target_table: string | null
+          user_id: string
+        }
+        Insert: {
+          actor?: string | null
+          amount?: number | null
+          created_at?: string
+          id?: string
+          item?: string | null
+          kind: string
+          line_hash: string
+          logged_at?: string | null
+          quantity?: number | null
+          raw_line: string
+          target_id?: string | null
+          target_table?: string | null
+          user_id?: string
+        }
+        Update: {
+          actor?: string | null
+          amount?: number | null
+          created_at?: string
+          id?: string
+          item?: string | null
+          kind?: string
+          line_hash?: string
+          logged_at?: string | null
+          quantity?: number | null
+          raw_line?: string
+          target_id?: string | null
+          target_table?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       expenses: {
         Row: {
           amount: number
