@@ -9,6 +9,7 @@ import { AppLayout } from "@/components/farm/AppLayout";
 import { Modal } from "@/components/farm/Modal";
 import { ExportButtons } from "@/components/farm/ExportButtons";
 import { formatBRL, formatDate, EXPENSE_CATEGORIES, expenseCategoryLabel } from "@/lib/farm";
+import { notifyDiscord } from "@/lib/discord-notify";
 import type { Tables } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/gastos")({
