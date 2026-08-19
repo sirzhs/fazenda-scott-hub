@@ -78,11 +78,13 @@ export async function exportReportPdf(data: ReportData) {
 
 /** Renders a DOM node to a PNG download. */
 export async function exportNodePng(node: HTMLElement, title: string) {
-  const { default: html2canvas } = await import("html2canvas");
+  // html2canvas-pro understands modern CSS colors (oklch/color-mix) used by the theme.
+  const { default: html2canvas } = await import("html2canvas-pro");
   const canvas = await html2canvas(node, {
     backgroundColor: "#faf7ec",
     scale: 2,
     useCORS: true,
+    logging: false,
   });
   const link = document.createElement("a");
   link.download = fileName(title, "png");
