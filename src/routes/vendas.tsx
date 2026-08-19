@@ -9,6 +9,7 @@ import { AppLayout } from "@/components/farm/AppLayout";
 import { Modal } from "@/components/farm/Modal";
 import { ExportButtons } from "@/components/farm/ExportButtons";
 import { formatBRL, formatQty, formatDate } from "@/lib/farm";
+import { notifyDiscord } from "@/lib/discord-notify";
 
 export const Route = createFileRoute("/vendas")({
   head: () => ({ meta: [{ title: "Vendas — Fazenda Scott" }] }),
