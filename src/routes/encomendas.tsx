@@ -10,6 +10,7 @@ import { Modal } from "@/components/farm/Modal";
 import { ExportButtons } from "@/components/farm/ExportButtons";
 import { formatQty, formatDate, ORDER_STATUS } from "@/lib/farm";
 import type { Tables } from "@/integrations/supabase/types";
+import { notifyDiscord } from "@/lib/discord-notify";
 
 export const Route = createFileRoute("/encomendas")({
   head: () => ({ meta: [{ title: "Encomendas — Fazenda Scott" }] }),
