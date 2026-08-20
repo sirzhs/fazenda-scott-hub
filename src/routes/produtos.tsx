@@ -63,6 +63,12 @@ function ProductsPage() {
       }
     },
     onSuccess: () => {
+      notifyDiscord({
+        module: "Produtos",
+        action: editing ? "atualizado" : "criado",
+        summary: `${form.name.trim()} — ${formatBRL(Number(form.price) || 0)} / ${form.unit.trim() || "un"}`,
+        fields: [{ name: "Estoque", value: formatQty(Number(form.stock) || 0) }],
+      });
       toast.success(editing ? "Produto atualizado!" : "Produto cadastrado!");
       setModalOpen(false);
       invalidate();
@@ -71,11 +77,17 @@ function ProductsPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("products").delete().eq("id", id);
+    mutationFn: async (product: Product) => {
+      const { error } = await supabase.from("products").delete().eq("id", product.id);
       if (error) throw error;
+      return product;
     },
-    onSuccess: () => {
+    onSuccess: (product) => {
+      notifyDiscord({
+        module: "Produtos",
+        action: "removido",
+        summary: `Produto removido: ${product.name}.`,
+      });
       toast.success("Produto removido.");
       invalidate();
     },
@@ -90,11 +102,17 @@ function ProductsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
+      notifyDiscord({
+        module: "Produtos",
+        action: "criado",
+        summary: `${DEFAULT_PRODUCTS.length} produtos padrão da fazenda cadastrados.`,
+      });
       toast.success("Produtos da fazenda adicionados!");
       invalidate();
     },
     onError: (e) => toast.error(e.message),
   });
+
 
   const openNew = () => {
     setEditing(null);
