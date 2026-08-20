@@ -322,7 +322,7 @@ function FinancePage() {
             onEdit={openEdit}
             onToggle={(e) => togglePaid.mutate(e)}
             onDelete={(e) => {
-              if (confirm(`Remover "${e.party}"?`)) deleteMutation.mutate(e.id);
+              if (confirm(`Remover "${e.party}"?`)) deleteMutation.mutate(e);
             }}
           />
           <EntryList
@@ -334,7 +334,7 @@ function FinancePage() {
             onEdit={openEdit}
             onToggle={(e) => togglePaid.mutate(e)}
             onDelete={(e) => {
-              if (confirm(`Remover "${e.party}"?`)) deleteMutation.mutate(e.id);
+              if (confirm(`Remover "${e.party}"?`)) deleteMutation.mutate(e);
             }}
           />
         </div>
