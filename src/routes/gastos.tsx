@@ -201,7 +201,7 @@ function ExpensesPage() {
                       </button>
                       <button
                         onClick={() => {
-                          if (confirm("Remover este gasto?")) deleteMutation.mutate(ex.id);
+                          if (confirm("Remover este gasto?")) deleteMutation.mutate(ex);
                         }}
                         className="rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                         aria-label="Remover gasto"
