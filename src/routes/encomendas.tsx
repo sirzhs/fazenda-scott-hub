@@ -223,7 +223,7 @@ function OrdersPage() {
                         </button>
                         <button
                           onClick={() => {
-                            if (confirm("Remover esta encomenda?")) deleteMutation.mutate(o.id);
+                            if (confirm("Remover esta encomenda?")) deleteMutation.mutate(o);
                           }}
                           className="rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                           aria-label="Remover encomenda"
