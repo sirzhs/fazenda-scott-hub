@@ -89,6 +89,12 @@ function OrdersPage() {
       }
     },
     onSuccess: () => {
+      notifyDiscord({
+        module: "Encomendas",
+        action: editing ? "atualizado" : "criado",
+        summary: `${form.customer.trim()} — ${formatQty(Number(form.quantity))} unidade(s), status ${form.status}.`,
+        fields: form.due_date ? [{ name: "Entrega", value: formatDate(form.due_date) }] : undefined,
+      });
       toast.success(editing ? "Encomenda atualizada!" : "Encomenda registrada!");
       setModalOpen(false);
       invalidate();
@@ -97,11 +103,17 @@ function OrdersPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("orders").delete().eq("id", id);
+    mutationFn: async (order: Order) => {
+      const { error } = await supabase.from("orders").delete().eq("id", order.id);
       if (error) throw error;
+      return order;
     },
-    onSuccess: () => {
+    onSuccess: (order) => {
+      notifyDiscord({
+        module: "Encomendas",
+        action: "removido",
+        summary: `Encomenda removida: ${order.customer} (${formatQty(Number(order.quantity))}).`,
+      });
       toast.success("Encomenda removida.");
       invalidate();
     },
