@@ -14,6 +14,7 @@ import {
   formatBRL,
   formatQty,
 } from "@/lib/farm";
+import { notifyDiscord } from "@/lib/discord-notify";
 
 export const Route = createFileRoute("/animais")({
   head: () => ({ meta: [{ title: "Animais — Fazenda Scott" }] }),
