@@ -313,7 +313,7 @@ function AnimalsPage() {
                               </button>
                               <button
                                 onClick={() => {
-                                  if (confirm(`Remover "${a.name}"?`)) deleteMutation.mutate(a.id);
+                                  if (confirm(`Remover "${a.name}"?`)) deleteMutation.mutate(a);
                                 }}
                                 className="rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                                 aria-label="Remover"
