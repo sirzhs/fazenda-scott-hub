@@ -30,6 +30,7 @@ const NAV = [
   { to: "/gastos", label: "Gastos", icon: Receipt },
   { to: "/financeiro", label: "Financeiro", icon: Wallet },
   { to: "/precos", label: "Tabela de Preços", icon: Table2 },
+  { to: "/configuracoes", label: "Configurações", icon: Settings },
 ];
 
 
