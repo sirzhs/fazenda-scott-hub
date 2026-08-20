@@ -26,6 +26,7 @@ import {
   type FinanceStatus,
 } from "@/lib/farm";
 import type { Tables } from "@/integrations/supabase/types";
+import { notifyDiscord } from "@/lib/discord-notify";
 
 export const Route = createFileRoute("/financeiro")({
   head: () => ({
