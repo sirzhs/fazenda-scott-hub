@@ -26,6 +26,7 @@ import {
   type FinanceStatus,
 } from "@/lib/farm";
 import type { Tables } from "@/integrations/supabase/types";
+import { notifyDiscord } from "@/lib/discord-notify";
 
 export const Route = createFileRoute("/financeiro")({
   head: () => ({
@@ -131,6 +132,12 @@ function FinancePage() {
       }
     },
     onSuccess: () => {
+      notifyDiscord({
+        module: "Financeiro",
+        action: editing ? "atualizado" : "criado",
+        summary: `Conta a ${form.kind} — ${form.party.trim()}: ${formatBRL(Number(form.amount) || 0)}`,
+        fields: [{ name: "Vencimento", value: formatDate(form.due_date || todayISO()) }],
+      });
       toast.success(editing ? "Lançamento atualizado!" : "Lançamento criado!");
       setModalOpen(false);
       invalidate();
@@ -145,22 +152,37 @@ function FinancePage() {
         .update({ paid_at: entry.paid_at ? null : todayISO() })
         .eq("id", entry.id);
       if (error) throw error;
+      return entry;
     },
-    onSuccess: () => invalidate(),
+    onSuccess: (entry) => {
+      notifyDiscord({
+        module: "Financeiro",
+        action: "atualizado",
+        summary: `${entry.party}: conta a ${entry.kind} de ${formatBRL(Number(entry.amount))} marcada como ${entry.paid_at ? "pendente" : "paga"}.`,
+      });
+      invalidate();
+    },
     onError: (e) => toast.error(e.message),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("finance_entries").delete().eq("id", id);
+    mutationFn: async (entry: Entry) => {
+      const { error } = await supabase.from("finance_entries").delete().eq("id", entry.id);
       if (error) throw error;
+      return entry;
     },
-    onSuccess: () => {
+    onSuccess: (entry) => {
+      notifyDiscord({
+        module: "Financeiro",
+        action: "removido",
+        summary: `Lançamento removido: ${entry.party} (${formatBRL(Number(entry.amount))}).`,
+      });
       toast.success("Lançamento removido.");
       invalidate();
     },
     onError: (e) => toast.error(e.message),
   });
+
 
   const totals = useMemo(() => {
     const salesTotal = sales.reduce((s, r) => s + Number(r.total), 0);
@@ -300,7 +322,7 @@ function FinancePage() {
             onEdit={openEdit}
             onToggle={(e) => togglePaid.mutate(e)}
             onDelete={(e) => {
-              if (confirm(`Remover "${e.party}"?`)) deleteMutation.mutate(e.id);
+              if (confirm(`Remover "${e.party}"?`)) deleteMutation.mutate(e);
             }}
           />
           <EntryList
@@ -312,7 +334,7 @@ function FinancePage() {
             onEdit={openEdit}
             onToggle={(e) => togglePaid.mutate(e)}
             onDelete={(e) => {
-              if (confirm(`Remover "${e.party}"?`)) deleteMutation.mutate(e.id);
+              if (confirm(`Remover "${e.party}"?`)) deleteMutation.mutate(e);
             }}
           />
         </div>

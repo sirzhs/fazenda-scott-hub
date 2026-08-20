@@ -76,6 +76,15 @@ function ExpensesPage() {
       }
     },
     onSuccess: () => {
+      notifyDiscord({
+        module: "Gastos",
+        action: editing ? "atualizado" : "criado",
+        summary: `${form.description.trim()} — ${formatBRL(Number(form.amount))}`,
+        fields: [
+          { name: "Categoria", value: expenseCategoryLabel(form.category) },
+          { name: "Data", value: formatDate(form.date) },
+        ],
+      });
       toast.success(editing ? "Gasto atualizado!" : "Gasto registrado!");
       setModalOpen(false);
       invalidate();
@@ -84,11 +93,17 @@ function ExpensesPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("expenses").delete().eq("id", id);
+    mutationFn: async (expense: Expense) => {
+      const { error } = await supabase.from("expenses").delete().eq("id", expense.id);
       if (error) throw error;
+      return expense;
     },
-    onSuccess: () => {
+    onSuccess: (expense) => {
+      notifyDiscord({
+        module: "Gastos",
+        action: "removido",
+        summary: `Gasto removido: ${expense.description} (${formatBRL(Number(expense.amount))}).`,
+      });
       toast.success("Gasto removido.");
       invalidate();
     },
@@ -186,7 +201,7 @@ function ExpensesPage() {
                       </button>
                       <button
                         onClick={() => {
-                          if (confirm("Remover este gasto?")) deleteMutation.mutate(ex.id);
+                          if (confirm("Remover este gasto?")) deleteMutation.mutate(ex);
                         }}
                         className="rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                         aria-label="Remover gasto"

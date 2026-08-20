@@ -10,6 +10,7 @@ import { Modal } from "@/components/farm/Modal";
 import { ExportButtons } from "@/components/farm/ExportButtons";
 import { formatBRL, formatQty, DEFAULT_PRODUCTS } from "@/lib/farm";
 import type { Tables } from "@/integrations/supabase/types";
+import { notifyDiscord } from "@/lib/discord-notify";
 
 export const Route = createFileRoute("/produtos")({
   head: () => ({ meta: [{ title: "Produtos — Fazenda Scott" }] }),
@@ -62,6 +63,12 @@ function ProductsPage() {
       }
     },
     onSuccess: () => {
+      notifyDiscord({
+        module: "Produtos",
+        action: editing ? "atualizado" : "criado",
+        summary: `${form.name.trim()} — ${formatBRL(Number(form.price) || 0)} / ${form.unit.trim() || "un"}`,
+        fields: [{ name: "Estoque", value: formatQty(Number(form.stock) || 0) }],
+      });
       toast.success(editing ? "Produto atualizado!" : "Produto cadastrado!");
       setModalOpen(false);
       invalidate();
@@ -70,11 +77,17 @@ function ProductsPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("products").delete().eq("id", id);
+    mutationFn: async (product: Product) => {
+      const { error } = await supabase.from("products").delete().eq("id", product.id);
       if (error) throw error;
+      return product;
     },
-    onSuccess: () => {
+    onSuccess: (product) => {
+      notifyDiscord({
+        module: "Produtos",
+        action: "removido",
+        summary: `Produto removido: ${product.name}.`,
+      });
       toast.success("Produto removido.");
       invalidate();
     },
@@ -89,11 +102,17 @@ function ProductsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
+      notifyDiscord({
+        module: "Produtos",
+        action: "criado",
+        summary: `${DEFAULT_PRODUCTS.length} produtos padrão da fazenda cadastrados.`,
+      });
       toast.success("Produtos da fazenda adicionados!");
       invalidate();
     },
     onError: (e) => toast.error(e.message),
   });
+
 
   const openNew = () => {
     setEditing(null);
@@ -211,7 +230,7 @@ function ProductsPage() {
                       <button
                         onClick={() => {
                           if (confirm(`Remover "${p.name}"? Movimentações e vendas dele também serão removidas.`))
-                            deleteMutation.mutate(p.id);
+                            deleteMutation.mutate(p);
                         }}
                         className="rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                         aria-label={`Remover ${p.name}`}

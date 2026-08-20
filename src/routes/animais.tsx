@@ -14,6 +14,7 @@ import {
   formatBRL,
   formatQty,
 } from "@/lib/farm";
+import { notifyDiscord } from "@/lib/discord-notify";
 
 export const Route = createFileRoute("/animais")({
   head: () => ({ meta: [{ title: "Animais — Fazenda Scott" }] }),
@@ -92,6 +93,12 @@ function AnimalsPage() {
       }
     },
     onSuccess: () => {
+      notifyDiscord({
+        module: "Animais",
+        action: form.id ? "atualizado" : "criado",
+        summary: `${form.name.trim()} (${animalCategoryLabel(form.category)}) — ${formatQty(Number(form.purchased) || 0)} comprados, ${formatQty(Number(form.slaughtered) || 0)} abatidos.`,
+        fields: [{ name: "Valor unitário", value: formatBRL(Number(form.unit_value) || 0) }],
+      });
       toast.success(form.id ? "Animal atualizado!" : "Animal cadastrado!");
       setModalOpen(false);
       setForm(EMPTY);
@@ -101,11 +108,17 @@ function AnimalsPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("animals").delete().eq("id", id);
+    mutationFn: async (animal: AnimalRow) => {
+      const { error } = await supabase.from("animals").delete().eq("id", animal.id);
       if (error) throw error;
+      return animal;
     },
-    onSuccess: () => {
+    onSuccess: (animal) => {
+      notifyDiscord({
+        module: "Animais",
+        action: "removido",
+        summary: `Registro removido: ${animal.name} (${animalCategoryLabel(animal.category)}).`,
+      });
       toast.success("Registro removido.");
       invalidate();
     },
@@ -127,6 +140,13 @@ function AnimalsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
+      if (adjust) {
+        notifyDiscord({
+          module: "Animais",
+          action: "atualizado",
+          summary: `${adjust.type === "compra" ? "Compra" : "Abate"} de ${formatQty(Number(adjust.quantity) || 0)} — ${adjust.animal.name}.`,
+        });
+      }
       toast.success(adjust?.type === "compra" ? "Compra registrada!" : "Abate registrado!");
       setAdjust(null);
       invalidate();
@@ -293,7 +313,7 @@ function AnimalsPage() {
                               </button>
                               <button
                                 onClick={() => {
-                                  if (confirm(`Remover "${a.name}"?`)) deleteMutation.mutate(a.id);
+                                  if (confirm(`Remover "${a.name}"?`)) deleteMutation.mutate(a);
                                 }}
                                 className="rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                                 aria-label="Remover"
