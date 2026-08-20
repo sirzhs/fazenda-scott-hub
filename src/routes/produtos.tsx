@@ -230,7 +230,7 @@ function ProductsPage() {
                       <button
                         onClick={() => {
                           if (confirm(`Remover "${p.name}"? Movimentações e vendas dele também serão removidas.`))
-                            deleteMutation.mutate(p.id);
+                            deleteMutation.mutate(p);
                         }}
                         className="rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                         aria-label={`Remover ${p.name}`}
