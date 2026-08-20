@@ -17,6 +17,7 @@ import { Route as MovimentacoesRouteImport } from './routes/movimentacoes'
 import { Route as GastosRouteImport } from './routes/gastos'
 import { Route as FinanceiroRouteImport } from './routes/financeiro'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AnimaisRouteImport } from './routes/animais'
 import { Route as IndexRouteImport } from './routes/index'
@@ -61,6 +62,11 @@ const EncomendasRoute = EncomendasRouteImport.update({
   path: '/encomendas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/animais': typeof AnimaisRoute
   '/auth': typeof AuthRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/encomendas': typeof EncomendasRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/animais': typeof AnimaisRoute
   '/auth': typeof AuthRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/encomendas': typeof EncomendasRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/animais': typeof AnimaisRoute
   '/auth': typeof AuthRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/encomendas': typeof EncomendasRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/animais'
     | '/auth'
+    | '/configuracoes'
     | '/encomendas'
     | '/financeiro'
     | '/gastos'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/animais'
     | '/auth'
+    | '/configuracoes'
     | '/encomendas'
     | '/financeiro'
     | '/gastos'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/animais'
     | '/auth'
+    | '/configuracoes'
     | '/encomendas'
     | '/financeiro'
     | '/gastos'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnimaisRoute: typeof AnimaisRoute
   AuthRoute: typeof AuthRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
   EncomendasRoute: typeof EncomendasRoute
   FinanceiroRoute: typeof FinanceiroRoute
   GastosRoute: typeof GastosRoute
@@ -231,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EncomendasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnimaisRoute: AnimaisRoute,
   AuthRoute: AuthRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
   EncomendasRoute: EncomendasRoute,
   FinanceiroRoute: FinanceiroRoute,
   GastosRoute: GastosRoute,
